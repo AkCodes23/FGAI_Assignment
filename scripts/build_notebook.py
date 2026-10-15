@@ -34,6 +34,16 @@ def build_notebook(output_path: str = "notebooks/autoregressive_text_generation.
 
 ---
 
+### Student & Project Metadata:
+- **Student Name:** Varanasi Naga Akhil
+- **Registration Number:** 230953496
+- **Course:** Foundations of Generative AI (ICT4403)
+- **Dataset:** *The Adventures of Sherlock Holmes* (Project Gutenberg #1661)
+- **GitHub Repository:** [https://github.com/AkCodes23/FGAI_Assignment.git](https://github.com/AkCodes23/FGAI_Assignment.git)
+- **Compute Architecture:** NVIDIA GeForce RTX 5050 Laptop GPU (8GB VRAM) / Multi-Core CPU
+
+---
+
 ### Assignment Objectives:
 1. **Textual Dataset Selection & Preprocessing:** Select a high-quality textual dataset (*The Adventures of Sherlock Holmes* by Arthur Conan Doyle), describe its characteristics, clean/tokenize the text, and construct causal sliding-window input–target sequences for next-word prediction.
 2. **Model Architectures & Training:** Implement and train four recurrent neural network architectures (**Simple RNN**, **Bidirectional RNN**, **LSTM**, and **GRU**) under strictly comparable experimental conditions.

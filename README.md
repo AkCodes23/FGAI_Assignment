@@ -6,12 +6,13 @@
 ### Project Metadata
 - **Course Title:** Foundations of Generative AI (ICT4403)
 - **Assignment:** Assignment 2 — Autoregressive Text Generation
-- **Author / Student Name:** [Student Name]
-- **Registration Number:** [Registration Number]
+- **Author / Student Name:** Varanasi Naga Akhil
+- **Registration Number:** 230953496
 - **Developed System Title:** Comparative Autoregressive Word-Level Language Modeling with Recurrent Architectures (Simple RNN, BiRNN, LSTM, GRU)
 - **Dataset:** *The Adventures of Sherlock Holmes* by Sir Arthur Conan Doyle (Project Gutenberg eBook #1661)
 - **Dataset Link:** [https://www.gutenberg.org/files/1661/1661-0.txt](https://www.gutenberg.org/files/1661/1661-0.txt)
-- **GitHub Repository Link:** [https://github.com/your-username/fgai_assignment](https://github.com/your-username/fgai_assignment)
+- **GitHub Repository Link:** [https://github.com/AkCodes23/FGAI_Assignment.git](https://github.com/AkCodes23/FGAI_Assignment.git)
+- **Compute Architecture / Acceleration:** NVIDIA GeForce RTX 5050 Laptop GPU (8GB VRAM) / Intel/AMD Multi-Core CPU (CUDA 13.3 ready)
 
 ---
 
