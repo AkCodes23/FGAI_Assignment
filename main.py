@@ -20,6 +20,7 @@ import torch
 import torch.nn as nn
 
 from src.data import prepare_dataset_and_dataloaders
+from src.eda import run_full_eda
 from src.models import get_model
 from src.train import train_model
 from src.evaluate import evaluate_model, benchmark_inference_latency, compile_metrics_table
@@ -70,6 +71,10 @@ def run_pipeline(
     print(f"Total Tokens: {meta['total_tokens']:,} | Vocabulary Size: {meta['vocab_size']:,}")
     print(f"Causal Window Length (L): {meta['seq_len']} words")
     print(f"Samples: Train={meta['train_samples']:,} | Val={meta['val_samples']:,} | Test={meta['test_samples']:,}")
+
+    # 1.5 Research-Grade Exploratory Data Analysis (EDA)
+    print("\n--- Task 1.5: Research-Grade Exploratory Data Analysis & Diagnostics ---")
+    run_full_eda()
 
     # 2. Model Training & Validation under Comparable Conditions
     model_names = ["Simple RNN", "Bidirectional RNN", "LSTM", "GRU"]
