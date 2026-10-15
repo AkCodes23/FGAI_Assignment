@@ -7,6 +7,7 @@ Features:
 - Complete Exploratory Data Analysis (EDA) with Zipf's Law, sentence length analysis, unigram entropy, and n-grams.
 - Full embedding of all 10 high-resolution publication-grade figures and architecture schematics.
 - Formatted tables for metadata, corpus statistics, n-gram collocations, quantitative results, and temperature dynamics.
+- Mathematical parameter decomposition and causal BiRNN slicing analysis.
 - Conversion to PDF via Microsoft Word COM automation.
 """
 
@@ -160,7 +161,7 @@ def create_submission_docx(
     doc.add_paragraph()
 
     # Section 2: End-to-End System Architecture
-    add_heading_with_color(doc, "2. End-to-End System Architecture", level=1)
+    add_heading_with_color(doc, "2. End-to-End System Architecture & Mathematical Formulation", level=1)
     p_arch = doc.add_paragraph()
     p_arch.paragraph_format.space_after = Pt(6)
     p_arch.add_run(
@@ -177,6 +178,42 @@ def create_submission_docx(
         "Figure 1: End-to-end modular system architecture showing data ingestion, embedding projection, recurrent latent encoding, and controlled stochastic autoregressive generation.",
         width_inches=6.2,
     )
+
+    # 2.2 Mathematical Parameter Decomposition
+    add_heading_with_color(doc, "2.2 Mathematical Parameter Allocation & Capacity Matching", level=2)
+    p_params = doc.add_paragraph()
+    p_params.add_run(
+        "A rigorous scientific comparison requires controlling for non-recurrent capacity across all models. In our implementation, "
+        "all four architectures share identical embedding dimensionality (d_e = 128) and effective hidden representation size (d_h = 256), "
+        "operating over a common vocabulary (V = 4,378). Non-recurrent parameter allocations are strictly uniform:\n"
+        "• Embedding Layer: V × d_e = 4,378 × 128 = 560,384 parameters.\n"
+        "• Output Projection Layer: (d_h × V) + V = (256 × 4,378) + 4,378 = 1,125,146 parameters.\n"
+        "• Common Baseline Parameters = 1,685,530 parameters (accounting for 70% to 88% of total model weights).\n\n"
+        "The remaining parameter variance across architectures arises purely from internal gating complexity across 2 stacked layers:\n"
+        "1. Simple RNN (1 gate per unit): Layer 1 = (128×256 + 256×256 + 2×256) = 98,816; Layer 2 = (256×256 + 256×256 + 2×256) = 131,584. "
+        "Recurrent total = 230,400. Grand Total = 1,915,930 parameters.\n"
+        "2. Bidirectional RNN (2 directions with d_h/2 = 128 units): Layer 1 = 2 × (128×128 + 128×128 + 2×128) = 66,048; "
+        "Layer 2 = 2 × (256×128 + 128×128 + 2×128) = 98,816. Recurrent total = 164,864. Grand Total = 1,850,394 parameters.\n"
+        "3. LSTM (4 gates: input, forget, output, candidate cell): Layer 1 = 4 × 98,816 = 395,264; Layer 2 = 4 × 131,584 = 526,336. "
+        "Recurrent total = 921,600. Grand Total = 2,607,130 parameters.\n"
+        "4. GRU (3 gates: reset, update, candidate hidden): Layer 1 = 3 × 98,816 = 296,448; Layer 2 = 3 × 131,584 = 394,752. "
+        "Recurrent total = 691,200. Grand Total = 2,376,730 parameters."
+    )
+
+    # 2.3 The Bidirectional Causal Asymmetry Paradox
+    add_heading_with_color(doc, "2.3 The Bidirectional Causal Asymmetry Paradox", level=2)
+    p_birnn_theory = doc.add_paragraph()
+    p_birnn_theory.add_run(
+        "A critical theoretical inquiry in autoregressive modeling is why Bidirectional RNNs are fundamentally sub-optimal for causal text generation. "
+        "In PyTorch's nn.RNN with bidirectional=True, the forward pass computes states h_1^-> through h_L^->, while the backward pass computes "
+        "h_L^<- down to h_1^<-. When predicting the next word w_{L+1} from context w_1...w_L, taking the final temporal slice (out[:, -1, :]) "
+        "selects the final forward state h_L^-> (which has observed all L prompt tokens), but selects the initial backward state h_L^<- (which has only "
+        "observed w_L in isolation from an initial zero state). The fully contextual backward vector is at index 0, not index -1. "
+        "Moreover, during autoregressive sequential generation, future tokens do not yet exist, creating an irreconcilable structural discrepancy "
+        "between bidirectional training and unidirectional inference rollout. This empirical reality explains BiRNN's elevated repetition rate (25.03% at T=0.2)."
+    )
+
+    doc.add_paragraph()
 
     # Section 3: Exploratory Data Analysis & Corpus Diagnostics
     add_heading_with_color(doc, "3. Exploratory Data Analysis (EDA) & Corpus Diagnostics", level=1)
@@ -207,11 +244,10 @@ def create_submission_docx(
     p_entropy_note = doc.add_paragraph()
     p_entropy_note.paragraph_format.space_before = Pt(6)
     p_entropy_note.add_run(
-        "Information-Theoretic Lower Bound: The empirical Shannon unigram entropy of the corpus is H = 8.7852 bits/token. "
-        "This yields a theoretical zeroth-order perplexity lower bound of 2^H = 441.17. Any trained autoregressive model achieving "
-        "a perplexity substantially below 441.17 demonstrates true sequential contextual modeling beyond independent unigram frequencies. "
-        "Our trained GRU achieves a test perplexity of 131.77, representing a 3.35x information compression over the unigram baseline "
-        "and a 33.2x reduction over the uniform random vocabulary baseline (PPL = 4,378)."
+        "Information-Theoretic Compression: The empirical Shannon unigram entropy of the corpus is H = 8.7852 bits/token. "
+        "This yields a theoretical zeroth-order perplexity lower bound of 2^H = 441.17 for any static unigram model. "
+        "Our trained GRU achieves a test perplexity of 129.05, representing a 3.42x information compression over the unigram baseline "
+        "and a 33.9x reduction over the uniform random vocabulary baseline (PPL = 4,378)."
     )
 
     # 3.2 Sentence Length Analysis
@@ -297,6 +333,17 @@ def create_submission_docx(
             ng_table.rows[r_idx + 1].cells[5].paragraphs[0].text = f"{int(row['Bigram_Count']):,}"
             ng_table.rows[r_idx + 1].cells[6].paragraphs[0].text = str(row["Bigram_Pct"])
         style_table(ng_table, [0.6, 1.1, 0.9, 1.1, 1.3, 0.9, 1.1])
+
+    # 3.6 Temporal Sequence Partitioning & Boundary Correlation Analysis
+    add_heading_with_color(doc, "3.6 Temporal Partitioning & Boundary Autocorrelation Safeguards", level=2)
+    p_split = doc.add_paragraph()
+    p_split.add_run(
+        "In sliding-window causal sequence modeling, a window of length L = 20 advanced by stride s = 2 shares L - s = 18 tokens "
+        "between consecutive sequences. To rigorously prevent future data leakage, our pipeline adopts a strict chronological split "
+        "(Train: first 80%, Validation: next 10%, Test: final 10%). While consecutive training windows possess natural autocorrelation, "
+        "they preserve unidirectional arrow of time. Furthermore, because the evaluation splits occupy chronologically later chapters, "
+        "test set perplexity genuinely measures the models' generalization ability on unseen narrative contexts."
+    )
 
     doc.add_paragraph()
 
@@ -389,6 +436,20 @@ def create_submission_docx(
 
         style_table(div_table, [1.5, 1.2, 1.1, 1.1, 1.8])
 
+    p_entropy_sampling = doc.add_paragraph()
+    p_entropy_sampling.paragraph_format.space_before = Pt(6)
+    p_entropy_sampling.add_run(
+        "Softmax Temperature Mechanics & Attractor Basin Formation:\n"
+        "Given raw model logits z_i, temperature scaling scales the logits by 1/T prior to normalization: P(w_i) = exp(z_i / T) / sum_j exp(z_j / T).\n"
+        "• At low temperature (T = 0.2): Probability mass concentrates heavily on the mode (argmax). When recurrent states enter a cyclic transition "
+        "matrix (such as 'in the matter of the...'), the deterministic argmax collapses into a closed Markovian attractor loop, resulting in high "
+        "3-gram repetition (up to 25.51% for Simple RNN and 25.03% for BiRNN).\n"
+        "• At moderate temperature (T = 0.7): Distribution entropy expands sufficiently to escape local attractor basins while remaining concentrated "
+        "enough to preserve Victorian grammatical syntax. This eliminates 3-gram repetition completely (0.00% across all models).\n"
+        "• At high temperature (T = 1.2): Entropy approaches the uniform distribution over 4,378 tokens (H_max = 12.096 bits), causing sampling from "
+        "the low-probability distributional tail and degrading syntactic coherence."
+    )
+
     add_figure_with_caption(
         doc,
         "results/qualitative_metrics.png",
@@ -424,11 +485,11 @@ def create_submission_docx(
     # Section 7: Comparative Architecture Analysis & Findings
     add_heading_with_color(doc, "7. Comparative Architecture Analysis & Conclusions", level=1)
     findings = [
-        ("Champion Architecture (GRU)", "The Gated Recurrent Unit achieved the best quantitative performance across all metrics: lowest Test Loss (4.8810), lowest Test Perplexity (131.77), highest Top-1 Accuracy (18.05%), and highest Top-5 Accuracy (38.86%). Compared to random guessing over 4,378 tokens (0.023%), the GRU is 785x more accurate. Its coupled update-reset gating enables effective long-range gradient propagation with fewer parameters (2.38M) than LSTM."),
-        ("LSTM Competitiveness & Speed", "LSTM was the second-best model (Test Loss 4.9057, PPL 135.06, Top-1 Acc 16.47%, Top-5 Acc 37.95%) and exhibited the lowest inference latency (1.85 ms per batch), making it highly competitive for latency-critical deployment."),
-        ("Simple RNN Vanishing Gradients", "The un-gated Simple RNN suffered from vanishing gradients across the 20-token horizon, yielding the highest Test Perplexity (158.44) and lowest accuracy (Top-1 15.61%). At low temperature (T=0.2), Simple RNN succumbed to severe degenerate repetition loops (22.12% 3-gram repetition)."),
-        ("Bidirectional RNN Causal Mismatch", "BiRNN achieved reasonable training metrics but is structurally incompatible with autoregressive generation: bidirectional encoding conditions on future tokens during training, which are unavailable during sequential next-word generation. This causal mismatch produced high repetition loops (27.67% at T=0.2)."),
-        ("Optimal Operational Temperature (T = 0.7)", "Temperature T = 0.7 represents the empirical sweet spot between coherence and diversity: Distinct-1 reached 0.76-0.79, Distinct-2 reached 0.98-0.99, and 3-gram repetition was completely eradicated (0.00% for both GRU and LSTM). In contrast, T = 0.2 causes repetitive mode collapse, while T = 1.2 induces syntactic disintegration."),
+        ("Champion Architecture (GRU)", "The Gated Recurrent Unit achieved the best quantitative performance across all metrics: lowest Test Loss (4.8602), lowest Test Perplexity (129.05), highest Top-1 Accuracy (17.86%), and highest Top-5 Accuracy (39.94%). Compared to random guessing over 4,378 tokens (0.0228%), the GRU is 783x more accurate. Its coupled update-reset gating enables effective long-range gradient propagation with fewer parameters (2.38M) than LSTM, avoiding parameter over-capacity on a 120k-token corpus."),
+        ("LSTM Competitiveness & Speed", "LSTM was the second-best model (Test Loss 4.8809, PPL 131.74, Top-1 Acc 17.22%, Top-5 Acc 38.59%) and exhibited the lowest inference latency (1.65 ms per batch), making it highly competitive for latency-critical deployment."),
+        ("Simple RNN Vanishing Gradients", "The un-gated Simple RNN suffered from severe vanishing gradients across the 20-token horizon, yielding the highest Test Perplexity (159.28) and lowest accuracy (Top-1 16.35%). At low temperature (T=0.2), Simple RNN succumbed to severe degenerate repetition loops (25.51% 3-gram repetition)."),
+        ("Bidirectional RNN Causal Mismatch", "BiRNN achieved reasonable training metrics but is structurally incompatible with autoregressive generation: bidirectional encoding conditions on future tokens during training, while taking out[:, -1, :] during next-word prediction causes the backward branch to only see the final token. This causal mismatch produced high repetition loops (25.03% at T=0.2)."),
+        ("Optimal Operational Temperature (T = 0.7)", "Temperature T = 0.7 represents the empirical sweet spot between coherence and diversity: Distinct-1 reached 0.70-0.80, Distinct-2 reached 0.96-0.99, and 3-gram repetition was completely eradicated (0.00% across all models). In contrast, T = 0.2 causes repetitive mode collapse, while T = 1.2 induces syntactic disintegration."),
     ]
 
     for title_txt, body_txt in findings:

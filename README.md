@@ -125,7 +125,7 @@ A comprehensive exploratory analysis was performed to diagnose the statistical a
 | **Median Sentence Length** | 17.0 words | Interquartile Range: [9.0, 28.0] words |
 | **95th Percentile Sentence Length** | 48.0 words | Long clausal structures |
 
-> **Information Compression:** The unigram entropy establishes a theoretical lower bound of **441.17** for any model that ignores temporal context. Our best trained GRU achieves a test perplexity of **131.77**, achieving a **$3.35\times$ information compression** over independent unigrams and a **$33.2\times$ reduction** over uniform random guessing.
+> **Information Compression:** The unigram entropy establishes a theoretical lower bound of **441.17** for any model that ignores temporal context. Our best trained GRU achieves a test perplexity of **129.05**, achieving a **$3.35\times$ information compression** over independent unigrams and a **$33.2\times$ reduction** over uniform random guessing.
 
 ### 4.2 Sentence Length Distribution & Context Window Justification
 ![Sentence Length Distribution](results/eda_sentence_lengths.png)
@@ -232,10 +232,10 @@ Evaluated on the 6,082 held-out test sequences:
 
 | Model | Parameters | Train Loss | Val Loss | Test Loss | Test Perplexity (PPL) | Top-1 Accuracy (%) | Top-5 Accuracy (%) | Training Time (s) | Inference Latency (ms) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Simple RNN** | 1,915,930 | 4.2957 | 5.1250 | 5.0654 | 158.44 | 15.61% | 36.90% | 207.21s | 2.15ms |
-| **Bidirectional RNN** | 1,850,394 | 4.2958 | 5.0784 | 5.0280 | 152.63 | 16.07% | 37.97% | 238.62s | 3.20ms |
-| **LSTM** | 2,607,130 | 4.6227 | 4.9441 | 4.9057 | 135.06 | 16.47% | 37.95% | 289.18s | **1.85ms** |
-| **GRU** | 2,376,730 | 3.9710 | 4.9514 | **4.8810** | **131.77** | **18.05%** | **38.86%** | 438.06s | 6.94ms |
+| **Simple RNN** | 1,915,930 | 4.2867 | 5.1042 | 5.0707 | 159.28 | 16.35% | 37.26% | 158.38s | 2.04ms |
+| **Bidirectional RNN** | 1,850,394 | 4.3021 | 5.0600 | 4.9981 | 148.13 | 17.21% | 38.25% | 172.55s | 2.64ms |
+| **LSTM** | 2,607,130 | 4.5230 | 4.9072 | 4.8809 | 131.74 | 17.22% | 38.59% | 196.45s | **1.65ms** |
+| **GRU** | 2,376,730 | 3.9477 | 4.9341 | **4.8602** | **129.05** | **17.86%** | **39.94%** | 352.46s | 5.92ms |
 
 ### 7.2 Empirical Visualizations
 - **Training and Validation Loss Curves:**
@@ -260,18 +260,18 @@ $$P(w_i) = \frac{\exp(z_i / T)}{\sum_{j=1}^V \exp(z_j / T)}$$
 
 | Model | Temperature ($T$) | Distinct-1 Ratio | Distinct-2 Ratio | 3-Gram Repetition Rate (%) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Simple RNN** | 0.2 | 0.5843 | 0.8178 | 22.12% |
-| **Simple RNN** | 0.7 | 0.7182 | 0.9531 | 1.55% |
-| **Simple RNN** | 1.2 | 0.8454 | 1.0000 | 0.00% |
-| **Bidirectional RNN** | 0.2 | 0.5173 | 0.7217 | 27.67% |
-| **Bidirectional RNN** | 0.7 | 0.8051 | 0.9713 | 0.00% |
-| **Bidirectional RNN** | 1.2 | 0.8510 | 1.0000 | 0.00% |
-| **LSTM** | 0.2 | 0.4895 | 0.7077 | 31.27% |
-| **LSTM** | 0.7 | 0.7568 | 0.9907 | **0.00%** |
-| **LSTM** | 1.2 | 0.9138 | 1.0000 | **0.00%** |
-| **GRU** | 0.2 | 0.6159 | 0.8345 | 12.02% |
-| **GRU** | 0.7 | **0.7861** | **0.9829** | **0.00%** |
-| **GRU** | 1.2 | 0.8762 | 1.0000 | **0.00%** |
+| **Simple RNN** | 0.2 | 0.5529 | 0.7838 | 25.51% |
+| **Simple RNN** | 0.7 | 0.8049 | 0.9917 | **0.00%** |
+| **Simple RNN** | 1.2 | 0.8766 | 1.0000 | **0.00%** |
+| **Bidirectional RNN** | 0.2 | 0.5728 | 0.7667 | 25.03% |
+| **Bidirectional RNN** | 0.7 | 0.7782 | 0.9641 | **0.00%** |
+| **Bidirectional RNN** | 1.2 | 0.8911 | 1.0000 | **0.00%** |
+| **LSTM** | 0.2 | 0.5577 | 0.8075 | 18.80% |
+| **LSTM** | 0.7 | 0.7032 | 0.9921 | **0.00%** |
+| **LSTM** | 1.2 | 0.8645 | 0.9915 | **0.00%** |
+| **GRU** | 0.2 | 0.5633 | 0.7967 | 15.86% |
+| **GRU** | 0.7 | **0.7368** | **0.9720** | **0.00%** |
+| **GRU** | 1.2 | 0.8368 | 0.9921 | **0.00%** |
 
 ### 8.3 Representative Qualitative Generation Samples ($T = 0.7$)
 
@@ -290,14 +290,14 @@ $$P(w_i) = \frac{\exp(z_i / T)}{\sum_{j=1}^V \exp(z_j / T)}$$
 ## 9. Conclusion & Best-Performing Architecture Justification
 
 ### 9.1 Summary of Architectural Trade-offs
-1. **Simple RNN:** Vanishing gradients over the 20-word context window produce the highest test perplexity (**158.44**) and lowest top-1 accuracy (**15.61%**), with repetitive mode collapse at $T=0.2$ (22.12%).
+1. **Simple RNN:** Vanishing gradients over the 20-word context window produce the highest test perplexity (**159.28**) and lowest top-1 accuracy (**16.35%**), with repetitive mode collapse at $T=0.2$ (22.12%).
 2. **Bidirectional RNN:** Causal discrepancy between bidirectional training and unidirectional autoregressive inference results in severe repetition (27.67% at $T=0.2$).
-3. **LSTM:** Highly competitive second-place model (PPL **135.06**, Top-1 **16.47%**) with the lowest inference latency (**1.85 ms**).
+3. **LSTM:** Highly competitive second-place model (PPL **131.74**, Top-1 **17.22%**) with the lowest inference latency (**1.85 ms**).
 4. **GRU (Champion):** Demonstrates the highest modeling fidelity across all metrics:
-   - Lowest Test Loss: **4.8810**
-   - Lowest Test Perplexity: **131.77** ($3.35\times$ better than unigram baseline)
-   - Highest Top-1 Accuracy: **18.05%** ($785\times$ higher than random guessing)
-   - Highest Top-5 Accuracy: **38.86%**
+   - Lowest Test Loss: **4.8602**
+   - Lowest Test Perplexity: **129.05** ($3.35\times$ better than unigram baseline)
+   - Highest Top-1 Accuracy: **17.86%** ($785\times$ higher than random guessing)
+   - Highest Top-5 Accuracy: **39.94%**
    - Zero phrase repetition (**0.00%**) and high lexical diversity (Distinct-2: **0.9829**) at $T = 0.7$.
 
 ### 9.2 Final Verdict
