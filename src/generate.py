@@ -75,37 +75,56 @@ def generate_text(
     temperature: float = 1.0,
     top_k: Optional[int] = None,
     top_p: Optional[float] = None,
+    repetition_penalty: float = 1.0,
     device: Optional[torch.device] = None,
     seq_len: int = 25,
 ) -> str:
     """
     Generates text autoregressively starting from a seed prompt.
+    Preserves original prompt verbatim, masks special tokens (<PAD>, <UNK>),
+    and decodes fluent continuation tokens.
     """
     if device is None:
         device = next(model.parameters()).device
 
     model.eval()
-    words = prompt.strip().lower().split()
+    prompt_trimmed = prompt.strip()
+    words = prompt_trimmed.lower().split()
     if len(words) == 0:
         raise ValueError("Seed prompt cannot be empty.")
 
     # Convert prompt to indices
     token_ids = [vocab.lookup_index(w) for w in words]
+    new_token_ids: List[int] = []
 
     with torch.no_grad():
         for _ in range(max_new_tokens):
-            # Take last seq_len tokens as context
-            context_ids = token_ids[-seq_len:]
+            context_ids = (token_ids + new_token_ids)[-seq_len:]
             inp_tensor = torch.tensor([context_ids], dtype=torch.long, device=device)
 
             logits, _ = model(inp_tensor)
-            logits = logits[0]  # shape: (vocab_size,)
+            logits = logits[0].clone()  # shape: (vocab_size,)
+
+            # Mask special tokens (<PAD>=0, <UNK>=1) so generation produces valid vocabulary
+            logits[0] = -float("Inf")
+            logits[1] = -float("Inf")
+
+            # Apply repetition penalty to recently generated tokens
+            if repetition_penalty > 1.0 and (token_ids + new_token_ids):
+                recent_tokens = set((token_ids + new_token_ids)[-20:])
+                for t in recent_tokens:
+                    if logits[t] > 0:
+                        logits[t] /= repetition_penalty
+                    else:
+                        logits[t] *= repetition_penalty
 
             next_idx = sample_next_token(logits, temperature=temperature, top_k=top_k, top_p=top_p)
-            token_ids.append(next_idx)
+            new_token_ids.append(next_idx)
 
-    generated_str = vocab.decode(token_ids)
-    return generated_str
+    continuation = vocab.decode(new_token_ids)
+    if continuation:
+        return f"{prompt_trimmed} {continuation}"
+    return prompt_trimmed
 
 
 def compute_diversity_metrics(text: str) -> Tuple[float, float, float]:

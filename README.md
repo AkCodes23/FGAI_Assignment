@@ -186,18 +186,18 @@ We evaluate three temperature regimes:
 
 | Model | Temperature ($T$) | Distinct-1 Ratio | Distinct-2 Ratio | 3-Gram Repetition Rate (%) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Simple RNN** | 0.2 | 0.5848 | 0.7499 | 36.89% |
-| **Simple RNN** | 0.7 | 0.7302 | 0.9447 | 2.86% |
-| **Simple RNN** | 1.2 | 0.8754 | 1.0000 | 0.00% |
-| **Bidirectional RNN** | 0.2 | 0.5077 | 0.6585 | 36.23% |
-| **Bidirectional RNN** | 0.7 | 0.7416 | 0.9711 | 1.90% |
-| **Bidirectional RNN** | 1.2 | 0.8967 | 1.0000 | 0.00% |
-| **LSTM** | 0.2 | 0.5421 | 0.7399 | 28.37% |
-| **LSTM** | 0.7 | 0.6896 | 0.9644 | **0.00%** |
-| **LSTM** | 1.2 | 0.8699 | 1.0000 | **0.00%** |
-| **GRU** | 0.2 | 0.5245 | 0.7618 | 22.36% |
-| **GRU** | 0.7 | **0.7648** | **0.9812** | **0.00%** |
-| **GRU** | 1.2 | 0.8350 | 0.9902 | **0.00%** |
+| **Simple RNN** | 0.2 | 0.5843 | 0.8178 | 22.12% |
+| **Simple RNN** | 0.7 | 0.7182 | 0.9531 | 1.55% |
+| **Simple RNN** | 1.2 | 0.8454 | 1.0000 | 0.00% |
+| **Bidirectional RNN** | 0.2 | 0.5173 | 0.7217 | 27.67% |
+| **Bidirectional RNN** | 0.7 | 0.8051 | 0.9713 | 0.00% |
+| **Bidirectional RNN** | 1.2 | 0.8510 | 1.0000 | 0.00% |
+| **LSTM** | 0.2 | 0.4895 | 0.7077 | 31.27% |
+| **LSTM** | 0.7 | 0.7568 | 0.9907 | **0.00%** |
+| **LSTM** | 1.2 | 0.9138 | 1.0000 | **0.00%** |
+| **GRU** | 0.2 | 0.6159 | 0.8345 | 12.02% |
+| **GRU** | 0.7 | **0.7861** | **0.9829** | **0.00%** |
+| **GRU** | 1.2 | 0.8762 | 1.0000 | **0.00%** |
 
 ### 6.3 Qualitative Analysis of Generated Samples
 
@@ -205,24 +205,24 @@ We evaluate three temperature regimes:
 
 ```
 [Simple RNN]
-T=0.2: "it was a dark and night when he had gone, and i have not be more successful. it is a very shiny, and the whole was struck with a very shiny..."
-T=0.7: "it was a dark and night when she had into an ulster. it was a cheetah ball of the paper. it was a little expense. i found that i had never seen him..."
-T=1.2: "it was a dark and night when i arrived through them. there are all! if cried lived did i have excuse bitter herefordshire..."
+T=0.2: "it was a dark and stormy night when i shall set to the assizes. i have seen a cab. it is a very obstinate, and the murderer was struck of the apartment. it is a very obstinate, and the whole was struck to..."
+T=0.7: "it was a dark and stormy night when the water of the lodge, and i shall just seen a little grey delicate of the study. i thought, said you, said we to see that you are not deal me. i am surprised to..."
+T=1.2: "it was a dark and stormy night when c tend for their rooms. mr. neville oh were high was too seven get that the first make steps, it pulled well, proof a letter villa discoloured old us came bill it..."
 
 [Bidirectional RNN]
-T=0.2: "it was a dark and night when he was a very deep, and i have heard a very friendly. i have heard a very deep man. i have heard a very friendly..."
-T=0.7: "it was a dark and night when you have not been in the evening. you will be able to meet you do not wish to me? i asked in astonishment..."
-T=1.2: "it was a dark and night when quick to this room colonies his money in the third as immense in glancing held and, the noble gentleman..."
+T=0.2: "it was a dark and stormy night when i have been a very very strongest, and i have heard him to the house. i have heard the whole, and i have been heard of the room. i have heard the whole of the room..."
+T=0.7: "it was a dark and stormy night when you these no, i shall have placed a very lovely. now, now, you can see. that was a stone by crime. he held a rule. the man s that they were at least..."
+T=1.2: "it was a dark and stormy night when quick to this room colonies his money in the third as immense in glancing held and, the noble gentleman..."
 
 [LSTM]
-T=0.2: "it was a dark and night when the of the of the. i am sure to be a of the. i am a of the. it is a of the of the..."
-T=0.7: "it was a dark and night when my time and which might have been address to you. in the bell of an night. i need to know to you, watson..."
-T=1.2: "it was a dark and night when never ran across some show a hotel. it saved he at how mr. sparkled, i know, i said that it was..."
+T=0.2: "it was a dark and stormy night when the door was a small man, and i had not been a small man, and the man was a little of the hand, and i have not been to be a very man, and i have..."
+T=0.7: "it was a dark and stormy night when the next very man s friend. then i shall imagine that present, do you not not be to the facts. just, and you must do that the cab are. i have heard it..."
+T=1.2: "it was a dark and stormy night when about me, hanging up, communication dr. dr. course help you be staggered before are hear one, the postmark that here is far that he put under strike its hat..."
 
 [GRU]
-T=0.2: "it was a dark and night when she had been a small of red, and the church was in the street, and i was aware of the window..."
-T=0.7: "it was a dark and night when she had been married. what was from the crown? i had been beautiful and my stepfather's manner had aroused suspicions..."
-T=1.2: "it was a dark and night when my double across the conscience recent, of his appeared, where his up shuttered into the secret chamber..."
+T=0.2: "it was a dark and stormy night when the same star of the bride. i am afraid that it is a little of the matter. i am afraid that you have seen the matter. i shall have been to you. you have been a..."
+T=0.7: "it was a dark and stormy night when my father had gone. i am its much, i think, we shall rest. you am sure a drive, but she s very much, said holmes. now, i ve thought that my own..."
+T=1.2: "it was a dark and stormy night when i pushed home from my drink, a wild expression both over the first towards record. from neither the lone people empty who people some criminal among to windibank or house..."
 ```
 
 ### 6.4 Key Qualitative Observations:
