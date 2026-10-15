@@ -26,6 +26,7 @@ from src.evaluate import evaluate_model, benchmark_inference_latency, compile_me
 from src.generate import run_sampling_experiment, DEFAULT_SEEDS
 from src.utils import (
     set_seed,
+    get_compute_device,
     plot_training_curves,
     plot_perplexity_curves,
     plot_comparative_bar_charts,
@@ -50,8 +51,7 @@ def run_pipeline(
     print("=" * 78)
 
     set_seed(seed)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[Device] Using compute device: {device}")
+    device = get_compute_device()
 
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(model_dir, exist_ok=True)

@@ -28,10 +28,33 @@ def set_seed(seed: int = 42) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
+        try:
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+        except Exception:
+            pass
+
+
+def get_compute_device() -> torch.device:
+    """
+    Determines and verifies the best compute device (GPU vs CPU).
+    Probes device with a small tensor operation to verify CUDA kernel execution.
+    """
+    if torch.cuda.is_available():
+        try:
+            probe = torch.zeros(1, device="cuda")
+            _ = probe + 1.0
+            device_name = torch.cuda.get_device_name(0)
+            print(f"[Compute Device] Utilizing GPU: {device_name}")
+            return torch.device("cuda")
+        except Exception as e:
+            print(f"[Compute Device] GPU detected ({torch.cuda.get_device_name(0)}), but CUDA kernel execution requires sm_120 compilation: {e}")
+            print("[Compute Device] Safely utilizing multi-threaded CPU for execution.")
+            return torch.device("cpu")
+    print("[Compute Device] Utilizing CPU.")
+    return torch.device("cpu")
 
 
 def plot_training_curves(
