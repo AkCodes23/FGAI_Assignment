@@ -1,0 +1,5 @@
+Model,Parameters,Train Loss,Val Loss,Test Loss,Test Perplexity,Top-1 Accuracy (%),Top-5 Accuracy (%),Training Time (s),Inference Latency (ms)
+Simple RNN,1915930,4.2957,5.125,5.0654,158.44,15.61,36.9,207.21,2.15
+Bidirectional RNN,1850394,4.2958,5.0784,5.028,152.63,16.07,37.97,238.62,3.2
+LSTM,2607130,4.6227,4.9441,4.9057,135.06,16.47,37.95,289.18,1.85
+GRU,2376730,3.971,4.9514,4.881,131.77,18.05,38.86,438.06,6.94

@@ -1,0 +1,19 @@
+# Environments & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Model Checkpoints (optional ignore if large, but we can track best small weights)
+# saved_models/*.pt
+
+# OS specific
+.DS_Store
+Thumbs.db
