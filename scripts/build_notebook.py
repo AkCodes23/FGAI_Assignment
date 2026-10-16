@@ -235,16 +235,33 @@ All four recurrent architectures share identical capacity and hyperparameters:
 - **Gradient Clipping:** Max norm $1.0$ for numerical stability
 
 ### Mathematical Formulations:
-1. **Simple RNN:**
-   $$h_t = \\tanh(W_{ih} x_t + b_{ih} + W_{hh} h_{t-1} + b_{hh})$$
-2. **Bidirectional RNN:**
-   $$h_t^{\\to} = \\text{RNN}_{\\text{fwd}}(x_t, h_{t-1}^{\\to}), \\quad h_t^{\\leftarrow} = \\text{RNN}_{\\text{bwd}}(x_t, h_{t+1}^{\\leftarrow}), \\quad h_t = [h_t^{\\to} \\,;\\, h_t^{\\leftarrow}]$$
-3. **LSTM:**
-   $$f_t = \\sigma(W_f [h_{t-1}, x_t] + b_f), \\quad i_t = \\sigma(W_i [h_{t-1}, x_t] + b_i), \\quad \\tilde{C}_t = \\tanh(W_c [h_{t-1}, x_t] + b_c)$$
-   $$C_t = f_t \\odot C_{t-1} + i_t \\odot \\tilde{C}_t, \\quad o_t = \\sigma(W_o [h_{t-1}, x_t] + b_o), \\quad h_t = o_t \\odot \\tanh(C_t)$$
-4. **GRU:**
-   $$r_t = \\sigma(W_r [h_{t-1}, x_t] + b_r), \\quad z_t = \\sigma(W_z [h_{t-1}, x_t] + b_z)$$
-   $$\\tilde{h}_t = \\tanh(W [r_t \\odot h_{t-1}, x_t] + b), \\quad h_t = (1 - z_t) \\odot h_{t-1} + z_t \\odot \\tilde{h}_t$$"""))
+
+#### 1. Simple RNN (Elman)
+$$
+h_t = \\tanh(W_{ih} x_t + b_{ih} + W_{hh} h_{t-1} + b_{hh})
+$$
+
+#### 2. Bidirectional RNN (BiRNN)
+$$
+\\vec{h}_t = \\mathrm{RNN}_{\\mathrm{fwd}}(x_t, \\vec{h}_{t-1}), \\quad \\overleftarrow{h}_t = \\mathrm{RNN}_{\\mathrm{bwd}}(x_t, \\overleftarrow{h}_{t+1}), \\quad h_t = [\\vec{h}_t \\,\\|\\, \\overleftarrow{h}_t]
+$$
+
+#### 3. Long Short-Term Memory (LSTM)
+$$
+\\begin{aligned}
+f_t &= \\sigma(W_f [h_{t-1}, x_t] + b_f), & i_t &= \\sigma(W_i [h_{t-1}, x_t] + b_i) \\\\
+\\tilde{C}_t &= \\tanh(W_c [h_{t-1}, x_t] + b_c), & C_t &= f_t \\odot C_{t-1} + i_t \\odot \\tilde{C}_t \\\\
+o_t &= \\sigma(W_o [h_{t-1}, x_t] + b_o), & h_t &= o_t \\odot \\tanh(C_t)
+\\end{aligned}
+$$
+
+#### 4. Gated Recurrent Unit (GRU)
+$$
+\\begin{aligned}
+r_t &= \\sigma(W_r [h_{t-1}, x_t] + b_r), & z_t &= \\sigma(W_z [h_{t-1}, x_t] + b_z) \\\\
+\\tilde{h}_t &= \\tanh(W [r_t \\odot h_{t-1}, x_t] + b), & h_t &= (1 - z_t) \\odot h_{t-1} + z_t \\odot \\tilde{h}_t
+\\end{aligned}
+$$"""))
 
     # Cell 11: Parameter Verification Code
     cells.append(create_cell("code", """model_configs = [

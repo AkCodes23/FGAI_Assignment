@@ -20,7 +20,10 @@
 
 ### 1.1 Problem Statement
 Autoregressive language models formulate sequence probability over discrete tokens via the causal chain rule of probability:
-$$P(W) = \prod_{t=1}^T P(w_t \mid w_1, w_2, \dots, w_{t-1})$$
+
+$$
+P(W) = \prod_{t=1}^T P(w_t \mid w_1, w_2, \dots, w_{t-1})
+$$
 
 Recurrent neural network (RNN) architectures are well-suited for sequential language modeling. However, standard recurrent cells (Simple RNNs) suffer from the **vanishing and exploding gradient problem**, which curtails their capacity to retain long-range context across extended token horizons. Gated variants such as **Long Short-Term Memory (LSTM)** and the **Gated Recurrent Unit (GRU)** introduce internal gating mechanisms designed to maintain stable error gradients across long horizons. Meanwhile, **Bidirectional RNNs (BiRNN)** process sequence context simultaneously in forward and backward directions.
 
@@ -120,7 +123,7 @@ The remaining parameter variance arises strictly from internal gating complexity
 #### Table: Recurrent Core Parameter Allocation & Gate Complexity
 | Architecture | Gating Mechanism & Formulation | Layer 1 Weights | Layer 2 Weights | Recurrent Core | Grand Total |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **Simple RNN** | 1 Gate: $\tanh(W_{ih}x_t + W_{hh}h_{t-1} + b)$ | 98,816 | 131,584 | 230,400 | **1,915,930** |
+| **Simple RNN** | 1 Gate: $\tanh(W_{ih} x_t + W_{hh} h_{t-1} + b)$ | 98,816 | 131,584 | 230,400 | **1,915,930** |
 | **Bidirectional RNN** | 2 Directions: ($d_h/2 = 128$ units/dir) | 66,048 | 98,816 | 164,864 | **1,850,394** |
 | **GRU** | 3 Gates: Reset ($r$), Update ($z$), Candidate ($n$) | 296,448 | 394,752 | 691,200 | **2,376,730** |
 | **LSTM** | 4 Gates: Input ($i$), Forget ($f$), Output ($o$), Cell ($g$) | 395,264 | 526,336 | 921,600 | **2,607,130** |
@@ -140,8 +143,8 @@ A critical theoretical question in language modeling is why **Bidirectional RNNs
 #### Table: Causal Unidirectional vs. Bidirectional Recurrence Analysis
 | Evaluation Dimension | Unidirectional Recurrence (LSTM / GRU / RNN) | Bidirectional Recurrence (BiRNN) |
 | :--- | :--- | :--- |
-| **Causal Consistency** | Strictly causal: $P(w_t \mid w_1, \dots, w_{t-1})$ | Non-causal: conditions on future tokens $w_{t+1 \dots L}$ |
-| **Temporal Slice (`out[:, -1, :]`)** | Captures complete contextual history over $w_1 \dots w_L$ | Forward: full history; Backward: uninformative initial step |
+| **Causal Consistency** | Strictly causal: $P(w_t \mid w_1, \dots, w_{t-1})$ | Non-causal: conditions on future tokens $w_{t+1}, \dots, w_L$ |
+| **Temporal Slice (`out[:, -1, :]`)** | Captures complete contextual history over $w_1, \dots, w_L$ | Forward: full history; Backward: uninformative initial step |
 | **Autoregressive Rollout** | Mathematically coherent token-by-token rollout | Future tokens absent; backward pass operates degenerately |
 | **Empirical 3-Gram Repetition ($T=0.2$)** | **0.00%** (GRU) / **0.00%** (LSTM) [No degenerate loops] | **25.03%** [Severe Markovian attractor collapse] |
 | **Empirical Test Perplexity (PPL)** | **129.05** (GRU) / **131.54** (LSTM) [Optimal] | **162.24** [Severely sub-optimal token conditioning] |
@@ -215,6 +218,8 @@ A comprehensive exploratory analysis was performed to diagnose the statistical a
 
 ## 5. Model Architectures & Controlled Experimental Setup
 
+### 5.1 Controlled Experimental Hyperparameters
+
 All models were evaluated under identical training conditions:
 
 | Hyperparameter | Value | Description |
@@ -226,26 +231,47 @@ All models were evaluated under identical training conditions:
 | **Dropout Rate** | 0.2 | Applied after embedding and recurrent layers |
 | **Context Length ($L$)** | 20 | Words in sliding context window |
 | **Batch Size** | 64 | Minibatch size |
-| **Optimizer** | Adam | $\beta_1=0.9, \beta_2=0.999, \text{weight\_decay}=10^{-5}$ |
+| **Optimizer** | Adam | $\beta_1 = 0.9, \; \beta_2 = 0.999, \; \text{weight decay} = 10^{-5}$ |
 | **Initial Learning Rate** | $1 \times 10^{-3}$ | Reduced on plateau by factor $0.5$ |
 | **Gradient Clipping** | $1.0$ | Max gradient norm to prevent explosion |
 | **Loss Criterion** | Cross-Entropy | $\mathcal{L} = -\log P(y \mid \mathbf{x})$, `<pad>` ignored |
 
-### Mathematical Formulations:
-1. **Simple RNN (Elman):**
-   $$h_t = \tanh(W_{ih} x_t + b_{ih} + W_{hh} h_{t-1} + b_{hh})$$
-   - Trainable Parameters: **1,915,930**
-2. **Bidirectional RNN (BiRNN):**
-   $$h_t^{\to} = \text{RNN}_{\text{fwd}}(x_t, h_{t-1}^{\to}), \quad h_t^{\leftarrow} = \text{RNN}_{\text{bwd}}(x_t, h_{t+1}^{\leftarrow}), \quad h_t = [h_t^{\to} \,\|\, h_t^{\leftarrow}]$$
-   - Trainable Parameters: **1,850,394**
-3. **LSTM (Long Short-Term Memory):**
-   $$f_t = \sigma(W_f [h_{t-1}, x_t] + b_f), \quad i_t = \sigma(W_i [h_{t-1}, x_t] + b_i), \quad \tilde{C}_t = \tanh(W_c [h_{t-1}, x_t] + b_c)$$
-   $$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t, \quad o_t = \sigma(W_o [h_{t-1}, x_t] + b_o), \quad h_t = o_t \odot \tanh(C_t)$$
-   - Trainable Parameters: **2,607,130**
-4. **GRU (Gated Recurrent Unit):**
-   $$r_t = \sigma(W_r [h_{t-1}, x_t] + b_r), \quad z_t = \sigma(W_z [h_{t-1}, x_t] + b_z)$$
-   $$\tilde{h}_t = \tanh(W [r_t \odot h_{t-1}, x_t] + b), \quad h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
-   - Trainable Parameters: **2,376,730**
+### 5.2 Recurrent Cell Mathematical Formulations
+
+#### 1. Simple RNN (Elman)
+$$
+h_t = \tanh(W_{ih} x_t + b_{ih} + W_{hh} h_{t-1} + b_{hh})
+$$
+- **Trainable Parameters:** 1,915,930
+- **Cell Mechanics:** First-order recurrent transition without internal memory gates; susceptible to vanishing gradients across extended horizons.
+
+#### 2. Bidirectional RNN (BiRNN)
+$$
+\vec{h}_t = \mathrm{RNN}_{\mathrm{fwd}}(x_t, \vec{h}_{t-1}), \quad \overleftarrow{h}_t = \mathrm{RNN}_{\mathrm{bwd}}(x_t, \overleftarrow{h}_{t+1}), \quad h_t = [\vec{h}_t \,\|\, \overleftarrow{h}_t]
+$$
+- **Trainable Parameters:** 1,850,394
+- **Cell Mechanics:** Two independent recurrent branches ($d_h / 2 = 128$ units/direction) concatenated into a 256-dimensional representation.
+
+#### 3. Long Short-Term Memory (LSTM)
+$$
+\begin{aligned}
+f_t &= \sigma(W_f [h_{t-1}, x_t] + b_f), & i_t &= \sigma(W_i [h_{t-1}, x_t] + b_i) \\
+\tilde{C}_t &= \tanh(W_c [h_{t-1}, x_t] + b_c), & C_t &= f_t \odot C_{t-1} + i_t \odot \tilde{C}_t \\
+o_t &= \sigma(W_o [h_{t-1}, x_t] + b_o), & h_t &= o_t \odot \tanh(C_t)
+\end{aligned}
+$$
+- **Trainable Parameters:** 2,607,130
+- **Cell Mechanics:** Constant error carousel with additive cell state $C_t$ governed by input ($i$), forget ($f$), and output ($o$) gates.
+
+#### 4. Gated Recurrent Unit (GRU)
+$$
+\begin{aligned}
+r_t &= \sigma(W_r [h_{t-1}, x_t] + b_r), & z_t &= \sigma(W_z [h_{t-1}, x_t] + b_z) \\
+\tilde{h}_t &= \tanh(W [r_t \odot h_{t-1}, x_t] + b), & h_t &= (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+\end{aligned}
+$$
+- **Trainable Parameters:** 2,376,730
+- **Cell Mechanics:** Coupled update ($z$) and reset ($r$) gating with candidate hidden state $\tilde{h}_t$, achieving comparable modeling capacity to LSTM with 25% fewer recurrent weights.
 
 ---
 
@@ -303,7 +329,10 @@ Evaluated on the 6,082 held-out test sequences:
 
 ### 8.1 Temperature Scaling Formulation
 Given output logits $\mathbf{z} \in \mathbb{R}^V$:
-$$P(w_i) = \frac{\exp(z_i / T)}{\sum_{j=1}^V \exp(z_j / T)}$$
+
+$$
+P(w_i) = \frac{\exp(z_i / T)}{\sum_{j=1}^V \exp(z_j / T)}
+$$
 
 ### 8.2 Qualitative Metrics Across Temperatures
 ![Qualitative Diversity Metrics](results/qualitative_metrics.png)
