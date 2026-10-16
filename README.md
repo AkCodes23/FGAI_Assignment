@@ -12,7 +12,7 @@
 - **Dataset:** *The Adventures of Sherlock Holmes* by Sir Arthur Conan Doyle (Project Gutenberg eBook #1661)
 - **Dataset Link:** [https://www.gutenberg.org/ebooks/1661](https://www.gutenberg.org/ebooks/1661)
 - **GitHub Repository Link:** [https://github.com/AkCodes23/FGAI_Assignment.git](https://github.com/AkCodes23/FGAI_Assignment.git)
-- **Compute Architecture / Acceleration:** NVIDIA GeForce RTX 5050 Laptop GPU (8GB VRAM) / Multi-Core Intel Core i7 Platform
+- **Compute Architecture / Acceleration:** NVIDIA GeForce RTX 5050 Laptop GPU (8GB VRAM) / Multi-Core AMD Ryzen 9HX Platform
 
 ---
 
